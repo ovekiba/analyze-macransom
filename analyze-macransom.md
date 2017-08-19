@@ -12,7 +12,7 @@
 
 ## 一、准备工作
 
-由于是分析勒索软件，需要特别注意，在分析时自己的电脑不要中毒。可以执行附件中的[mac_ransom_guard.sh](./scripts/mac_ransom_guard.sh)脚本文件，来保护电脑。**基本原理是每秒检查电脑中是否有本次分析的勒索软件释放出来的病毒文件，如果有就将该病毒文件改名，这样病毒程序就不能正常的启动了。**
+由于是分析勒索软件，需要特别注意，在分析时自己的电脑不要中毒。可以执行附件中的[mac_ransom_guard.sh](./scripts/mac_ransom_guard.sh)脚本文件，来保护电脑。基本原理是每秒检查电脑中是否有本次分析的勒索软件释放出来的病毒文件，如果有就将该病毒文件改名，这样病毒程序就不能正常的启动了。
 
 新开一个终端窗口，执行脚本。
 ![启动守护脚本](./pictures/run-guard-script.png)
@@ -100,15 +100,15 @@ echo $((`sysctl -n hw.logicalcpu`/`sysctl -n hw.physicalcpu`))|grep 2 > /dev/nul
 ![主要逻辑1](./pictures/main-logic-first.png)
 ![主要逻辑2](./pictures/main-logic-second.png)
 
-> * 把软件自己移动到**~/Library/.FS_Store**
-> * 设置文件**~/Library/.FS_Store**的创建和修改日期为2016年6月7日10点12分
-> * 创建文件**~/Library/LaunchAgents/com.apple.finder.plist**
-> * 设置文件**~/Library/LaunchAgents/com.apple.finder.plist**的创建和修改日期为2016年6月7日10点12分
-> * 删除系统中名为**com.apple.finder**的服务
-> * 以配置文件**~/Library/LaunchAgents/com.apple.finder.plist**启动名为**com.apple.finder**的服务
+> * 把软件自己移动到~/Library/.FS_Store
+> * 设置文件~/Library/.FS_Store的创建和修改日期为2016年6月7日10点12分
+> * 创建文件~/Library/LaunchAgents/com.apple.finder.plist
+> * 设置文件~/Library/LaunchAgents/com.apple.finder.plist的创建和修改日期为2016年6月7日10点12分
+> * 删除系统中名为com.apple.finder的服务
+> * 以配置文件~/Library/LaunchAgents/com.apple.finder.plist启动名为com.apple.finder的服务
 > * 退出程序
 
-其中**~/Library/LaunchAgents/com.apple.finder.plist**文件的内容如下：
+其中~/Library/LaunchAgents/com.apple.finder.plist文件的内容如下：
 ```text
     <plist version="1.0">
     <dict>
@@ -128,7 +128,7 @@ echo $((`sysctl -n hw.logicalcpu`/`sysctl -n hw.physicalcpu`))|grep 2 > /dev/nul
     </plist>
 ```
 
-当名为**com.apple.finder**服务启动后，RunAtLoad为true表明当用户登陆系统后，软件会自动运行。运行的命令为：
+当名为com.apple.finder服务启动后，RunAtLoad为true表明当用户登陆系统后，软件会自动运行。运行的命令为：
 
 ```bash
 bash -c ! pgrep -x .FS_Store && ~/Library/.FS_Store
@@ -143,9 +143,9 @@ bash -c ! pgrep -x .FS_Store && ~/Library/.FS_Store
 
 ## 四、分析软件的加密过程
 
-**注意：因为运行了守护脚本[mac_ransom_guard.sh](./scripts/mac_ransom_guard.sh)，所以文件~/Library/.FS_Store被改名为了~/Library/.FS_Store.bk，进行此步骤时必须关闭守护脚本。
+> 注意：因为运行了守护脚本[mac_ransom_guard.sh](./scripts/mac_ransom_guard.sh)，所以文件~/Library/.FS_Store被改名为了~/Library/.FS_Store.bk，进行此步骤时必须关闭守护脚本。
 
-软件其实会检测文件**~/Library/.FS_Store**和文件**~/Library/LaunchAgents/com.apple.finder.plist**是否存在，如果存在就会直接开始加密文件。所以我们可以创建假的文件来欺骗软件。
+软件其实会检测文件~/Library/.FS_Store和文件~/Library/LaunchAgents/com.apple.finder.plist是否存在，如果存在就会直接开始加密文件。所以我们可以创建假的文件来欺骗软件。
 
 ```bash
 touch ~/Library/.FS_Store
@@ -161,4 +161,4 @@ touch ~/Library/LaunchAgents/com.apple.finder.plist
 ```bash
 find /Volumes ~ ! -path "/Users/ove/Downloads/macRansom/macRansom"  -type f -size +8c -user `whoami` -perm -u=r -exec "/Users/ove/Downloads/macRansom/macRansom"  {}  +
 ```
-来查找整个电脑中，除去文件**/Users/ove/Downloads/macRansom/macRansom**的所有其他普通文件，文件大小大于8个字符，属于当前用户的，有可读权限的文件，并将这些文件加密。
+来查找整个电脑中，除去文件/Users/ove/Downloads/macRansom/macRansom的所有其他普通文件，文件大小大于8个字符，属于当前用户的，有可读权限的文件，并将这些文件加密。
